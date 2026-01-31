@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server"
-import { and, eq } from "drizzle-orm"
+import { and, desc, eq, lt, or } from "drizzle-orm"
 import QRCode from "qrcode"
 import z from "zod"
 
@@ -87,15 +87,55 @@ export const qrCodeRouter = createTRPCRouter({
       return qrCode
     }),
 
-  list: protectedProcedure.query(async ({ ctx }) => {
-    const { id: userId } = ctx.session.user
+  list: protectedProcedure
+    .input(
+      z.object({
+        cursor: z
+          .object({
+            createdAt: z.date(),
+            id: z.uuid(),
+          })
+          .nullish(),
+        limit: z.number().min(1).max(100),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { user } = ctx.session
+      const { cursor, limit } = input
 
-    const qrCodes = await ctx.db
-      .select()
-      .from(qrCodeTable)
-      .where(eq(qrCodeTable.userId, userId))
-      .orderBy(qrCodeTable.createdAt)
+      const qrCodes = await ctx.db
+        .select()
+        .from(qrCodeTable)
+        .where(
+          and(
+            eq(qrCodeTable.userId, user.id),
+            cursor
+              ? or(
+                  lt(qrCodeTable.createdAt, cursor.createdAt),
+                  and(
+                    eq(qrCodeTable.id, cursor.id),
+                    eq(qrCodeTable.createdAt, cursor.createdAt),
+                  ),
+                )
+              : undefined,
+          ),
+        )
+        .orderBy(desc(qrCodeTable.createdAt))
+        .limit(limit + 1)
 
-    return qrCodes
-  }),
+      const hasMore = qrCodes.length > limit
+      const items = hasMore ? qrCodes.slice(0, -1) : qrCodes
+      const lastItem = items[items.length - 1]
+      const nextCursor = hasMore
+        ? {
+            createdAt: lastItem.createdAt,
+            id: lastItem.id,
+          }
+        : null
+
+      return {
+        items,
+        nextCursor,
+      }
+    }),
 })
