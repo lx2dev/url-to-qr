@@ -126,6 +126,11 @@ export const qrCodeRouter = createTRPCRouter({
       const { user } = ctx.session
       const { cursor, limit } = input
 
+      const totalCount = await ctx.db.$count(
+        qrCodeTable,
+        eq(qrCodeTable.userId, user.id),
+      )
+
       const qrCodes = await ctx.db
         .select()
         .from(qrCodeTable)
@@ -159,6 +164,7 @@ export const qrCodeRouter = createTRPCRouter({
       return {
         items,
         nextCursor,
+        totalCount,
       }
     }),
 })

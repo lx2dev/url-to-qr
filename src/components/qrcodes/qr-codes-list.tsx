@@ -34,6 +34,7 @@ function QRCodeListSuspense() {
   )
 
   const qrCodes = qrCodesList.pages.flatMap((page) => page.items)
+  const totalCount = qrCodesList.pages[0]?.totalCount || 0
 
   const deleteQRCode = api.qrCode.delete.useMutation({
     onError(error) {
@@ -73,7 +74,7 @@ function QRCodeListSuspense() {
   return (
     <div>
       <h2 className="mb-4 font-semibold text-lg">
-        Your QR Codes ({qrCodes.length || 0})
+        Your QR Codes ({totalCount})
       </h2>
 
       {qrCodes.length === 0 ? (
