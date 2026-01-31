@@ -13,7 +13,7 @@ export default async function QRCodesPage() {
     headers: await headers(),
   })
 
-  if (session) {
+  if (session?.session) {
     void api.qrCode.list.prefetchInfinite({
       limit: DEFAULT_FETCH_LIMIT,
     })
@@ -23,15 +23,15 @@ export default async function QRCodesPage() {
     <HydrateClient>
       <div className="min-h-screen">
         <div className="container mx-auto max-w-2xl px-4 py-6 sm:py-8">
-          {session && <QRCodesHeader />}
+          <QRCodesHeader session={session?.session} />
 
           <Card className="mb-8 p-6 dark:bg-card/50 dark:backdrop-blur">
             <CreateQRCodeForm />
           </Card>
 
-          {session && <QRCodesList />}
+          {session?.session && <QRCodesList />}
 
-          {!session && (
+          {!session?.session && (
             <div className="mt-4 text-center text-muted-foreground text-sm">
               Sign in to save and manage your QR codes.
             </div>

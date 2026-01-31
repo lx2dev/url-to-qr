@@ -1,6 +1,8 @@
 "use client"
 
-import { IconLogout2 } from "@tabler/icons-react"
+import { IconLogin2, IconLogout2 } from "@tabler/icons-react"
+import type { Session } from "better-auth"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 import { toast } from "sonner"
@@ -14,8 +16,9 @@ import {
 } from "@/components/ui/tooltip"
 import { authClient } from "@/lib/auth/client"
 
-export function QRCodesHeader() {
+export function QRCodesHeader({ session }: { session: Session | undefined }) {
   const router = useRouter()
+
   const [_state, formAction, isPending] = React.useActionState(signOut, null)
 
   function signOut() {
@@ -26,7 +29,7 @@ export function QRCodesHeader() {
             toast.error("Failed to log out. Please try again.")
           },
           onSuccess() {
-            router.push("/auth")
+            router.refresh()
           },
         },
       })
@@ -36,22 +39,41 @@ export function QRCodesHeader() {
   return (
     <div className="mb-8 flex items-center gap-4">
       <Tooltip>
-        <TooltipTrigger
-          render={
-            <form action={formAction}>
+        {session ? (
+          <TooltipTrigger
+            render={
+              <form action={formAction}>
+                <Button
+                  disabled={isPending}
+                  size="icon"
+                  type="submit"
+                  variant="secondary"
+                >
+                  {isPending ? <Spinner /> : <IconLogout2 className="size-5" />}
+                </Button>
+              </form>
+            }
+          />
+        ) : (
+          <TooltipTrigger
+            render={
               <Button
                 disabled={isPending}
+                nativeButton={false}
+                render={
+                  <Link href="/auth">
+                    <IconLogin2 className="size-5" />
+                  </Link>
+                }
                 size="icon"
-                type="submit"
                 variant="secondary"
-              >
-                {isPending ? <Spinner /> : <IconLogout2 className="size-5" />}
-              </Button>
-            </form>
-          }
-        />
+              />
+            }
+          />
+        )}
+
         <TooltipContent side="left">
-          <p>Logout</p>
+          <p>{session ? "Logout" : "Login"}</p>
         </TooltipContent>
       </Tooltip>
 
