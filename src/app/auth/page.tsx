@@ -59,7 +59,7 @@ export default function AuthPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <Card className="w-full max-w-md border-border p-8 dark:bg-card/50 dark:backdrop-blur">
+      <Card className="w-full max-w-md p-8 dark:bg-card/50 dark:backdrop-blur">
         <CardHeader className="text-center">
           <CardTitle className="text-balance font-bold text-3xl">
             Convert URLs to QR Codes
