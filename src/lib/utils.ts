@@ -48,8 +48,3 @@ export function generateQRFilename(url: string): string {
 
   return `qr-${sanitized}-${timestamp}.png`
 }
-
-export async function dataUrlToBlob(dataUrl: string): Promise<Blob> {
-  const res = await fetch(dataUrl)
-  return res.blob()
-}
