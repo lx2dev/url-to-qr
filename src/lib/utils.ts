@@ -24,7 +24,23 @@ export function normalizeUrl(url: string): string {
 export function isValidUrl(url: string): boolean {
   try {
     const normalizedUrl = normalizeUrl(url)
-    new URL(normalizedUrl)
+
+    const parsed = new URL(normalizedUrl)
+    const hostname = parsed.hostname
+    if (
+      hostname.endsWith(".") ||
+      !hostname.includes(".") ||
+      hostname.startsWith(".") ||
+      /[^a-zA-Z0-9.-]/.test(hostname)
+    ) {
+      return false
+    }
+
+    const tld = hostname.split(".").pop() || ""
+    if (tld.length < 2) {
+      return false
+    }
+
     return true
   } catch {
     return false
