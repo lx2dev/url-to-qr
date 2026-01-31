@@ -14,9 +14,17 @@ export function getBaseUrl() {
   return env.NEXT_PUBLIC_URL
 }
 
+export function normalizeUrl(url: string): string {
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    return `https://${url}`
+  }
+  return url
+}
+
 export function isValidUrl(url: string): boolean {
   try {
-    new URL(url)
+    const normalizedUrl = normalizeUrl(url)
+    new URL(normalizedUrl)
     return true
   } catch {
     return false
