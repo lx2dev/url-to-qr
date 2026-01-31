@@ -69,8 +69,6 @@ function QRCodeListSuspense() {
     }
   }
 
-  const isLoading = query.isPending || deleteQRCode.isPending || downloading
-
   return (
     <div>
       <h2 className="mb-4 font-semibold text-lg">
@@ -120,7 +118,11 @@ function QRCodeListSuspense() {
                 <CardFooter className="gap-2">
                   <Button
                     className="flex-1"
-                    disabled={isLoading}
+                    disabled={
+                      downloading ||
+                      (deleteQRCode.isPending &&
+                        deleteQRCode.variables?.id === qrCode.id)
+                    }
                     onClick={() => handleDownload(qrCode.qrData, qrCode.url)}
                     size="sm"
                     variant="outline"
@@ -130,12 +132,20 @@ function QRCodeListSuspense() {
                   </Button>
                   <Button
                     className="flex-1"
-                    disabled={isLoading}
+                    disabled={
+                      deleteQRCode.isPending &&
+                      deleteQRCode.variables?.id === qrCode.id
+                    }
                     onClick={() => handleDelete(qrCode.id)}
                     size="sm"
                     variant="destructive"
                   >
-                    {deleteQRCode.isPending ? <Spinner /> : <IconTrash />}
+                    {deleteQRCode.isPending &&
+                    deleteQRCode.variables?.id === qrCode.id ? (
+                      <Spinner />
+                    ) : (
+                      <IconTrash />
+                    )}
                     Delete
                   </Button>
                 </CardFooter>
