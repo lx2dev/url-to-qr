@@ -18,6 +18,18 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   description: "Convert urls to qr codes",
+  icons: {
+    icon: [
+      {
+        media: "(prefers-color-scheme: light)",
+        url: "/icon-light.svg",
+      },
+      {
+        media: "(prefers-color-scheme: dark)",
+        url: "/icon-dark.svg",
+      },
+    ],
+  },
   title: "URL to QR",
 }
 
