@@ -1,5 +1,5 @@
 import crypto from "node:crypto"
-import { sql } from "drizzle-orm"
+import { relations, sql } from "drizzle-orm"
 import { index, pgTableCreator } from "drizzle-orm/pg-core"
 
 export const createTable = pgTableCreator((name) => name)
@@ -28,6 +28,9 @@ export const qrCodeTable = createTable(
   ],
 )
 
+export type QRCode = typeof qrCodeTable.$inferSelect
+export type NewQRCode = typeof qrCodeTable.$inferInsert
+
 export const user = createTable(
   "user",
   (d) => ({
@@ -50,6 +53,9 @@ export const user = createTable(
     index("user_email_idx").on(t.email),
   ],
 )
+
+export type User = typeof user.$inferSelect
+export type NewUser = typeof user.$inferInsert
 
 export const session = createTable(
   "session",
@@ -113,3 +119,30 @@ export const verification = createTable(
   }),
   (t) => [index("verification_identifier_idx").on(t.identifier)],
 )
+
+export const qrCodeRelations = relations(qrCodeTable, ({ one }) => ({
+  user: one(user, {
+    fields: [qrCodeTable.userId],
+    references: [user.id],
+  }),
+}))
+
+export const usersRelations = relations(user, ({ many }) => ({
+  accounts: many(account),
+  qrCodes: many(qrCodeTable),
+  sessions: many(session),
+}))
+
+export const accountRelations = relations(account, ({ one }) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id],
+  }),
+}))
+
+export const sessionRelations = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
+  }),
+}))
