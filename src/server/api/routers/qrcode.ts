@@ -60,33 +60,6 @@ export const qrCodeRouter = createTRPCRouter({
       }
     }),
 
-  download: protectedProcedure
-    .input(
-      z.object({
-        id: z.uuid(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      const { id: userId } = ctx.session.user
-
-      const [qrCode] = await ctx.db
-        .select()
-        .from(qrCodeTable)
-        .where(
-          and(eq(qrCodeTable.id, input.id), eq(qrCodeTable.userId, userId)),
-        )
-
-      if (!qrCode) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "QR Code not found",
-        })
-      }
-
-      // return qrCode.qrData
-      return qrCode
-    }),
-
   list: protectedProcedure
     .input(
       z.object({
