@@ -84,18 +84,26 @@ function QRCodeListSuspense() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-4 flex h-9 items-center gap-2">
         <h2 className="font-semibold text-lg">Your QR Codes ({totalCount})</h2>
 
-        <div className="ml-auto">
-          <QRCodeSearch onChange={setInput} value={input} />
-        </div>
+        {qrCodes.length > 0 && (
+          <div className="ml-auto">
+            <QRCodeSearch onChange={setInput} value={input} />
+          </div>
+        )}
       </div>
 
-      {filteredQrCodes.length === 0 ? (
+      {qrCodes.length === 0 ? (
         <Card className="border border-dashed bg-transparent p-8 text-center ring-0">
           <p className="text-muted-foreground">
             No QR codes yet. Create your first one above!
+          </p>
+        </Card>
+      ) : filteredQrCodes.length === 0 ? (
+        <Card className="border border-dashed bg-transparent p-8 text-center ring-0">
+          <p className="text-muted-foreground">
+            No QR codes match your search.
           </p>
         </Card>
       ) : (
