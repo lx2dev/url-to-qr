@@ -13,3 +13,35 @@ export function getBaseUrl() {
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
   return env.NEXT_PUBLIC_URL
 }
+
+export function isValidUrl(url: string): boolean {
+  try {
+    new URL(url)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export function formatUrlForDisplay(
+  url: string,
+  maxLength: number = 50,
+): string {
+  if (url.length <= maxLength) return url
+  return `${url.substring(0, maxLength)}...`
+}
+
+export function generateQRFilename(url: string): string {
+  const timestamp = Date.now()
+  const sanitized = url
+    .replace(/https?:\/\//, "")
+    .replace(/[^a-z0-9]/gi, "-")
+    .substring(0, 20)
+
+  return `qr-${sanitized}-${timestamp}.png`
+}
+
+export async function dataUrlToBlob(dataUrl: string): Promise<Blob> {
+  const res = await fetch(dataUrl)
+  return res.blob()
+}
