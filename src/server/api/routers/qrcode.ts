@@ -9,7 +9,7 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "@/server/api/init"
-import { redis } from "@/server/db/redis"
+import { getRedisClient } from "@/server/db/redis"
 import { qrCodeTable } from "@/server/db/schema"
 
 export const qrCodeRouter = createTRPCRouter({
@@ -51,6 +51,7 @@ export const qrCodeRouter = createTRPCRouter({
       const redisKey = `anon_qr_limit:${ip}:${today}`
       const limit = DAILY_ANONYMOUS_QR_CODE_LIMIT
 
+      const redis = getRedisClient()
       const current = await redis.incr(redisKey)
 
       if (current === 1) {
