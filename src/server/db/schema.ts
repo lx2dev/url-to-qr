@@ -1,7 +1,32 @@
+import crypto from "node:crypto"
 import { sql } from "drizzle-orm"
 import { index, pgTableCreator } from "drizzle-orm/pg-core"
 
 export const createTable = pgTableCreator((name) => name)
+
+export const qrCodeTable = createTable(
+  "qr_code",
+  (d) => ({
+    createdAt: d
+      .timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    id: d
+      .text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    qrData: d.text("qr_data").notNull(),
+    url: d.text("url").notNull(),
+    userId: d
+      .text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+  }),
+  (t) => [
+    index("qr_code_userId_idx").on(t.userId),
+    index("qr_code_createdAt_idx").on(t.createdAt),
+  ],
+)
 
 export const user = createTable(
   "user",
