@@ -6,6 +6,7 @@ import * as React from "react"
 import { Suspense } from "react"
 import { toast } from "sonner"
 
+import { InfiniteScroll } from "@/components/infinite-scroll"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -82,67 +83,75 @@ function QRCodeListSuspense() {
           </p>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {qrCodes.map((qrCode) => (
-            <Card
-              className="pt-0 dark:bg-card/50 dark:backdrop-blur"
-              key={qrCode.id}
-            >
-              <picture className="relative flex aspect-square w-full items-center justify-center rounded-lg bg-white">
-                <source srcSet={qrCode.qrData} type="image/png" />
-                <img
-                  alt={`QR code for ${qrCode.url}`}
-                  className="size-full object-contain"
-                  src={qrCode.qrData}
-                />
-              </picture>
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {qrCodes.map((qrCode) => (
+              <Card
+                className="pt-0 dark:bg-card/50 dark:backdrop-blur"
+                key={qrCode.id}
+              >
+                <picture className="relative flex aspect-square w-full items-center justify-center rounded-lg bg-white">
+                  <source srcSet={qrCode.qrData} type="image/png" />
+                  <img
+                    alt={`QR code for ${qrCode.url}`}
+                    className="size-full object-contain"
+                    src={qrCode.qrData}
+                  />
+                </picture>
 
-              <CardContent>
-                <div>
-                  <p className="mb-1 text-muted-foreground text-xs">
-                    Associated URL
-                  </p>
-                  <Link
-                    className="truncate font-mono text-primary text-sm hover:underline"
-                    // @ts-expect-error - typedRoutes
-                    href={qrCode.url}
-                    rel="noopener noreferrer"
-                    target="_blank"
+                <CardContent>
+                  <div>
+                    <p className="mb-1 text-muted-foreground text-xs">
+                      Associated URL
+                    </p>
+                    <Link
+                      className="truncate font-mono text-primary text-sm hover:underline"
+                      // @ts-expect-error - typedRoutes
+                      href={qrCode.url}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
+                      {formatUrlForDisplay(qrCode.url)}
+                    </Link>
+                  </div>
+                </CardContent>
+
+                <CardFooter className="gap-2">
+                  <Button
+                    className="flex-1"
+                    disabled={isLoading}
+                    onClick={() => handleDownload(qrCode.qrData, qrCode.url)}
+                    size="sm"
+                    variant="outline"
                   >
-                    {formatUrlForDisplay(qrCode.url)}
-                  </Link>
-                </div>
-              </CardContent>
+                    {downloading ? <Spinner /> : <IconDownload />}
+                    Download
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    disabled={isLoading}
+                    onClick={() => handleDelete(qrCode.id)}
+                    size="sm"
+                    variant="destructive"
+                  >
+                    {deleteQRCode.isPending ? <Spinner /> : <IconTrash />}
+                    Delete
+                  </Button>
+                </CardFooter>
 
-              <CardFooter className="gap-2">
-                <Button
-                  className="flex-1"
-                  disabled={isLoading}
-                  onClick={() => handleDownload(qrCode.qrData, qrCode.url)}
-                  size="sm"
-                  variant="outline"
-                >
-                  {downloading ? <Spinner /> : <IconDownload />}
-                  Download
-                </Button>
-                <Button
-                  className="flex-1"
-                  disabled={isLoading}
-                  onClick={() => handleDelete(qrCode.id)}
-                  size="sm"
-                  variant="destructive"
-                >
-                  {deleteQRCode.isPending ? <Spinner /> : <IconTrash />}
-                  Delete
-                </Button>
-              </CardFooter>
+                <p className="w-full text-center text-muted-foreground text-xs">
+                  {new Date(qrCode.createdAt).toLocaleDateString()}
+                </p>
+              </Card>
+            ))}
+          </div>
 
-              <p className="w-full text-center text-muted-foreground text-xs">
-                {new Date(qrCode.createdAt).toLocaleDateString()}
-              </p>
-            </Card>
-          ))}
-        </div>
+          <InfiniteScroll
+            fetchNextPage={() => query.fetchNextPage()}
+            hasNextPage={Boolean(query.hasNextPage)}
+            isFetchingNextPage={query.isFetchingNextPage}
+          />
+        </>
       )}
     </div>
   )
