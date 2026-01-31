@@ -7,6 +7,7 @@ import { Suspense } from "react"
 import { toast } from "sonner"
 
 import { InfiniteScroll } from "@/components/infinite-scroll"
+import { QRCodeSearch } from "@/components/qrcodes/search"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -27,6 +28,15 @@ function QRCodeListSuspense() {
   const utils = api.useUtils()
 
   const [downloading, setDownloading] = React.useState<boolean>(false)
+  const [input, setInput] = React.useState<string>("")
+  const [search, setSearch] = React.useState<string>("")
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(input)
+    }, 400)
+    return () => clearTimeout(handler)
+  }, [input])
 
   const [qrCodesList, query] = api.qrCode.list.useSuspenseInfiniteQuery(
     { limit: DEFAULT_FETCH_LIMIT },
@@ -35,6 +45,11 @@ function QRCodeListSuspense() {
 
   const qrCodes = qrCodesList.pages.flatMap((page) => page.items)
   const totalCount = qrCodesList.pages[0]?.totalCount || 0
+  const filteredQrCodes = search
+    ? qrCodes.filter((qr) =>
+        qr.url.toLowerCase().includes(search.toLowerCase()),
+      )
+    : qrCodes
 
   const deleteQRCode = api.qrCode.delete.useMutation({
     onError(error) {
@@ -52,8 +67,6 @@ function QRCodeListSuspense() {
   }
 
   function handleDownload(qrData: string, url: string) {
-    if (downloading) return
-
     setDownloading(true)
     try {
       const link = document.createElement("a")
@@ -71,11 +84,15 @@ function QRCodeListSuspense() {
 
   return (
     <div>
-      <h2 className="mb-4 font-semibold text-lg">
-        Your QR Codes ({totalCount})
-      </h2>
+      <div className="mb-4 flex items-center gap-2">
+        <h2 className="font-semibold text-lg">Your QR Codes ({totalCount})</h2>
 
-      {qrCodes.length === 0 ? (
+        <div className="ml-auto">
+          <QRCodeSearch onChange={setInput} value={input} />
+        </div>
+      </div>
+
+      {filteredQrCodes.length === 0 ? (
         <Card className="border border-dashed bg-transparent p-8 text-center ring-0">
           <p className="text-muted-foreground">
             No QR codes yet. Create your first one above!
@@ -84,7 +101,7 @@ function QRCodeListSuspense() {
       ) : (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {qrCodes.map((qrCode) => (
+            {filteredQrCodes.map((qrCode) => (
               <Card
                 className="pt-0 dark:bg-card/50 dark:backdrop-blur"
                 key={qrCode.id}
