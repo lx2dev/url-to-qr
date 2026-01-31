@@ -10,7 +10,7 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
-  plugins: [nextCookies()], // make sure nextCookies() is the last plugin in the array
+  plugins: [nextCookies()],
   socialProviders: {
     discord: {
       clientId: env.GITHUB_CLIENT_ID,
