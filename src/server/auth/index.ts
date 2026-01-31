@@ -12,7 +12,7 @@ export const auth = betterAuth({
   }),
   plugins: [nextCookies()],
   socialProviders: {
-    discord: {
+    github: {
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
     },
