@@ -22,12 +22,18 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        media: "(prefers-color-scheme: light)",
-        url: "/icon-light.svg",
+        href: "/favicon-light.svg",
+        url: "/favicon-light.svg",
       },
       {
+        href: "/favicon-light.svg",
+        media: "(prefers-color-scheme: light)",
+        url: "/favicon-light.svg",
+      },
+      {
+        href: "/favicon-dark.svg",
         media: "(prefers-color-scheme: dark)",
-        url: "/icon-dark.svg",
+        url: "/favicon-dark.svg",
       },
     ],
   },
