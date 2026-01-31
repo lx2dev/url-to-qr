@@ -1,1 +1,2 @@
 export const DEFAULT_FETCH_LIMIT = 10
+export const DAILY_ANONYMOUS_QR_CODE_LIMIT = 5
